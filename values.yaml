@@ -10,7 +10,7 @@ controllers:
         env:
           TZ: "America/New_York"
           DOMAIN: "https://vault.media.lan"
-          SIGNUPS_ALLOWED: "true"   # Disable after creating your account
+          SIGNUPS_ALLOWED: "true" # Disable after creating your account
           INVITATIONS_ALLOWED: "true"
           SHOW_PASSWORD_HINT: "false"
           LOG_LEVEL: "info"
@@ -58,7 +58,7 @@ ingress:
     enabled: true
     className: traefik
     annotations:
-      cert-manager.io/cluster-issuer: "selfsigned-ca"  # Or "letsencrypt-prod"
+      cert-manager.io/cluster-issuer: "selfsigned-ca" # Or "letsencrypt-prod"
     hosts:
       - host: vault.media.lan
         paths:
