@@ -1,0 +1,82 @@
+controllers:
+  vaultwarden:
+    strategy: Recreate
+    containers:
+      app:
+        image:
+          repository: vaultwarden/server
+          tag: 1.32.1
+          pullPolicy: IfNotPresent
+        env:
+          TZ: "America/New_York"
+          DOMAIN: "https://vault.media.lan"
+          SIGNUPS_ALLOWED: "true"   # Disable after creating your account
+          INVITATIONS_ALLOWED: "true"
+          SHOW_PASSWORD_HINT: "false"
+          LOG_LEVEL: "info"
+          EXTENDED_LOGGING: "true"
+          LOG_FILE: "/data/vaultwarden.log"
+          # Admin panel (disable in production or set strong token)
+          # Generate token: openssl rand -base64 48
+          # ADMIN_TOKEN: "your-admin-token-here"
+        probes:
+          liveness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /alive
+                port: 80
+              initialDelaySeconds: 30
+              periodSeconds: 10
+          readiness:
+            enabled: true
+            custom: true
+            spec:
+              httpGet:
+                path: /alive
+                port: 80
+              initialDelaySeconds: 30
+              periodSeconds: 10
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+
+service:
+  app:
+    controller: vaultwarden
+    ports:
+      http:
+        port: 80
+
+ingress:
+  app:
+    enabled: true
+    className: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: "selfsigned-ca"  # Or "letsencrypt-prod"
+    hosts:
+      - host: vault.media.lan
+        paths:
+          - path: /
+            pathType: Prefix
+            service:
+              identifier: app
+              port: http
+    tls:
+      - secretName: vaultwarden-tls
+        hosts:
+          - vault.media.lan
+
+persistence:
+  data:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    storageClass: nfs-appdata
+    globalMounts:
+      - path: /data
