@@ -196,7 +196,7 @@ env:
 
 ```bash
 # Sync to NAS
-rsync -avz ./backups/ jlambert@192.168.2.10:/volume1/backups/vaultwarden/
+rsync -avz ./backups/ youruser@192.168.1.10:/volume1/backups/vaultwarden/
 
 # Encrypt and upload to cloud
 gpg -c ./backups/vaultwarden-20260208_040000.db
